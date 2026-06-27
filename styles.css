@@ -1,34 +1,36 @@
 /* Stylesheet for Smart Quran Memorizer - Luxury Dark Emerald Theme */
 
 :root {
-    --bg-main: #05120e;
-    --bg-gradient: linear-gradient(135deg, #05120e 0%, #0a251c 50%, #05120e 100%);
-    --bg-card: rgba(13, 43, 34, 0.7);
-    --bg-card-hover: rgba(18, 56, 45, 0.8);
-    --bg-input: #081d16;
+    --bg-main: #040d0a;
+    --bg-gradient: linear-gradient(135deg, #040d0a 0%, #081d16 50%, #040d0a 100%);
+    --bg-card: rgba(10, 31, 24, 0.75);
+    --bg-card-hover: rgba(14, 43, 33, 0.85);
+    --bg-input: #061712;
     
     --primary: #10b981;
-    --primary-glow: rgba(16, 185, 129, 0.4);
+    --primary-glow: rgba(16, 185, 129, 0.3);
     --primary-light: #34d399;
-    --accent: #fbbf24;
-    --accent-glow: rgba(251, 191, 36, 0.5);
+    --accent: #f59e0b;
+    --accent-glow: rgba(245, 158, 11, 0.4);
     --danger: #ef4444;
-    --danger-glow: rgba(239, 68, 68, 0.4);
+    --danger-glow: rgba(239, 68, 68, 0.3);
     
     --text-main: #f0fdf4;
-    --text-muted: #86efac;
-    --text-dark: #062f21;
+    --text-muted: #a7f3d0;
+    --text-dark: #022c22;
     
-    --border-color: rgba(16, 185, 129, 0.2);
-    --border-hover: rgba(52, 211, 153, 0.5);
+    --border-color: rgba(16, 185, 129, 0.15);
+    --border-hover: rgba(52, 211, 153, 0.4);
     
-    --shadow-main: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
-    --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.25);
-    --shadow-accent-glow: 0 0 15px rgba(251, 191, 36, 0.3);
+    --shadow-main: 0 15px 35px -5px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 25px rgba(16, 185, 129, 0.2);
+    --shadow-accent-glow: 0 0 20px rgba(245, 158, 11, 0.2);
     
     --font-quran: 'Amiri', Georgia, serif;
     --font-title: 'Cairo', system-ui, -apple-system, sans-serif;
     --font-ui: 'Cairo', 'Montserrat', system-ui, sans-serif;
+    --border-radius-lg: 18px;
+    --border-radius-md: 12px;
 }
 
 /* Reset & Global Styles */
@@ -1515,91 +1517,100 @@ body.kids-mode ::-webkit-scrollbar-thumb:hover {
 
     .reciter-selector select {
         flex: 1;
+        width: 100%;
     }
     
     .btn-toggle-kids {
         width: 100%;
         justify-content: center;
+        padding: 12px;
     }
     
     .ayah-card {
-        padding: 20px;
-        min-height: 240px;
+        padding: 20px 16px;
+        min-height: auto;
     }
     
     .ayah-text {
-        font-size: 26px;
-        line-height: 2;
-    }
-    
-    .card-controls {
-        gap: 8px;
-    }
-    
-    .btn {
-        padding: 8px 14px;
-        font-size: 12px;
-        flex-grow: 1;
-        justify-content: center;
-    }
-    
-    .recorder-card {
-        padding: 16px;
-    }
-    
-    .modes-grid {
-        gap: 6px;
-    }
-    
-    .mode-box {
-        padding: 8px 2px;
-    }
-    
-    .mode-name {
-        font-size: 9px;
-    }
-    
-    .index-section {
-        padding: 16px;
-    }
-    
-    .ayah-grid-list {
-        grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
-        gap: 8px;
-    }
-    
-    .ayah-grid-cell {
-        height: 42px;
-        font-size: 12px;
-    }
-    
-    /* Adjust visualizer text */
-    .visualizer-fallback-text {
-        font-size: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .ayah-text {
-        font-size: 22px;
-    }
-    
-    .basmala-text {
-        font-size: 20px;
+        font-size: 24px;
+        line-height: 1.8;
     }
     
     .card-controls {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        gap: 10px;
         width: 100%;
+    }
+
+    .card-controls .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 10px;
     }
     
     .card-controls .btn-primary {
         grid-column: span 2;
+        padding: 14px;
+        font-size: 14px;
+    }
+    
+    .recorder-card {
+        padding: 16px 12px;
+    }
+    
+    .modes-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .mode-box {
+        padding: 12px 4px;
+    }
+    
+    .mode-name {
+        font-size: 10px;
+    }
+    
+    .index-section {
+        padding: 16px 12px;
+    }
+    
+    .ayah-grid-list {
+        grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+        gap: 6px;
+    }
+    
+    .ayah-grid-cell {
+        height: 40px;
+        font-size: 12px;
+    }
+    
+    .visualizer-fallback-text {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-main {
+        gap: 12px;
+    }
+
+    .logo-area h1 {
+        font-size: 20px;
+    }
+
+    .ayah-text {
+        font-size: 21px;
+    }
+    
+    .basmala-text {
+        font-size: 18px;
     }
     
     .modes-grid {
         grid-template-columns: 1fr;
+        gap: 6px;
     }
     
     .mode-box {
@@ -1614,12 +1625,31 @@ body.kids-mode ::-webkit-scrollbar-thumb:hover {
     }
     
     .nav-arrow {
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
     }
     
     .ayah-index-display {
         font-size: 12px;
+    }
+
+    .tracker-panel {
+        padding: 14px 10px;
+    }
+
+    .tracker-stats-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tracker-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-tracker-action {
+        width: 100%;
+        justify-content: center;
     }
 }
 
