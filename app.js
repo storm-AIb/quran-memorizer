@@ -649,7 +649,7 @@ function onAudioEnded() {
         // BOTH active: repeat the active Ayah 3 times, then transition to next Ayah
         currentAyahRepeatCount++;
         if (currentAyahRepeatCount < 3) {
-            setTimeout(playRecitation, 800); // 800ms natural pause before repeating
+            setTimeout(playRecitation, 100); // 100ms very small pause before repeating
         } else {
             currentAyahRepeatCount = 0; // Reset for next Ayah
             setTimeout(() => {
@@ -661,11 +661,11 @@ function onAudioEnded() {
                     autoplayMode = false;
                     btnAutoplay.classList.remove('active');
                 }
-            }, 1000);
+            }, 150); // Fast transition to next Ayah
         }
     } else if (loopMode) {
         // ONLY Loop active: repeat indefinitely
-        setTimeout(playRecitation, 500);
+        setTimeout(playRecitation, 100); // Fast repetition
     } else if (autoplayMode) {
         // ONLY Autoplay active: play once and advance
         setTimeout(() => {
@@ -676,7 +676,7 @@ function onAudioEnded() {
                 autoplayMode = false;
                 btnAutoplay.classList.remove('active');
             }
-        }, 1000);
+        }, 150); // Fast transition
     }
 }
 
