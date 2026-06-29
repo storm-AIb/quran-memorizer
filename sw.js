@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quran-memorizer-v4';
+const CACHE_NAME = 'quran-memorizer-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -34,8 +34,16 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Only handle GET requests and local assets (same origin)
-  if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) {
+  const url = e.request.url;
+  
+  // Completely bypass Service Worker interception for audio files (.mp3) or external audio server calls
+  // This is critical to prevent Safari from throwing Range Request errors (206) in iOS PWA standalone mode
+  if (
+    e.request.method !== 'GET' || 
+    url.includes('.mp3') || 
+    url.startsWith('https://everyayah.com') ||
+    !url.startsWith(self.location.origin)
+  ) {
     return;
   }
   e.respondWith(

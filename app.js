@@ -557,7 +557,7 @@ function playRecitation() {
         })
         .catch(err => {
             console.error('Recitation play failed:', err);
-            alert('تعذر تشغيل التلاوة. تأكد من اتصالك بالإنترنت.');
+            alert('تعذر تشغيل التلاوة: ' + err.message + '\nتأكد من اتصالك بالإنترنت وسماح النظام بالتشغيل.');
         });
 }
 
