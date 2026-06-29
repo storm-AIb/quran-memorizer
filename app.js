@@ -456,9 +456,13 @@ async function loadSurah(surahNum) {
     } catch (err) {
         console.error('Error loading surah:', err);
         quranTextContainer.innerHTML = `
-            <div class="empty-state-text error-state">
-                <p>حدث خطأ أثناء تحميل آيات السورة والتفسير. يرجى التأكد من اتصال الإنترنت وإعادة المحاولة.</p>
-                <button class="btn btn-primary" id="btn-retry-load-surah" style="margin-top: 14px; padding: 8px 16px; font-size: 13px; border-radius: 8px;">
+            <div class="empty-state-text error-state" style="text-align: left; direction: ltr; font-family: monospace; font-size: 12px; white-space: pre-wrap; padding: 16px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; color: #f87171;">
+                <p style="font-weight: bold; font-size: 14px; margin-bottom: 8px; text-align: right; direction: rtl; font-family: var(--font-main);">❌ حدث خطأ برمي أثناء تحميل السورة:</p>
+                <strong>${err.name}: ${err.message}</strong>
+                <br><br>
+                ${err.stack || 'No stack trace available'}
+                <br><br>
+                <button class="btn btn-primary" id="btn-retry-load-surah" style="margin-top: 14px; padding: 8px 16px; font-size: 13px; border-radius: 8px; float: right; font-family: var(--font-main);">
                     🔄 إعادة محاولة التحميل
                 </button>
             </div>
