@@ -96,6 +96,12 @@
                         <span>دليل المميزات</span>
                     </button>
 
+                    <!-- Listening Mode Toggle Button -->
+                    <button class="btn-listening-mode" id="btn-listening-mode-toggle" title="وضع الاستماع المتواصل للقرآن الكريم">
+                        <span class="listening-icon">🎧</span>
+                        <span>وضع الاستماع</span>
+                    </button>
+
                     <!-- Install App PWA Button -->
                     <button class="btn-install-pwa hidden" id="btn-install-app" title="تثبيت اختصار التطبيق على الهاتف">
                         <span class="install-icon">📲</span>
@@ -508,6 +514,47 @@
                     </div>
                     <button class="btn-promo-nav next-promo-slide" id="btn-promo-next">التالي &rarr;</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. Continuous Listening Mode Modal -->
+    <div class="modal-overlay hidden" id="listening-modal">
+        <div class="modal-card listening-card">
+            <div class="modal-header">
+                <h3>وضع الاستماع المتواصل للقرآن الكريم 🎧</h3>
+                <button class="btn-close-modal" id="btn-close-listening" title="إغلاق">&times;</button>
+            </div>
+            <div class="modal-body listening-body">
+                <p class="listening-desc">حدد السور التي تود الاستماع إليها بالترتيب المتتابع بصوت القارئ المفضل لديك (يتم الانتقال تلقائياً بين السور والآيات لتسهيل الاستماع والقراءة الطبيعية):</p>
+                
+                <div class="playlist-selection-container">
+                    <div class="playlist-selection-header">
+                        <span>قائمة السور المتاحة (اختر سورة أو أكثر):</span>
+                        <div class="playlist-selection-actions">
+                            <button class="btn-text-action" id="btn-listening-select-all">تحديد الكل</button>
+                            <button class="btn-text-action" id="btn-listening-clear-all">إلغاء التحديد</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Surah checkbox grid (will be dynamically populated by JS) -->
+                    <div class="playlist-surah-grid" id="listening-surah-grid">
+                        <div class="empty-state-text">جاري تحميل قائمة السور...</div>
+                    </div>
+                </div>
+                
+                <!-- Playlist selection status -->
+                <div class="playlist-queue-status">
+                    <div class="playlist-queue-count">عدد السور المحددة: <strong id="listening-selected-count">٠</strong></div>
+                    <div class="playlist-queue-items-preview" id="listening-queue-preview">
+                        <span class="empty-queue-text">لم يتم اختيار سور بعد. اختر من القائمة بالأعلى للبدء.</span>
+                    </div>
+                </div>
+                
+                <!-- Big Action Button to Start -->
+                <button class="btn btn-primary btn-start-listening-queue" id="btn-start-listening-play">
+                    <span>بدء الاستماع المتواصل ▶️</span>
+                </button>
             </div>
         </div>
     </div>

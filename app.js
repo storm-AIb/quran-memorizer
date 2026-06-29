@@ -28,6 +28,11 @@ let showTafsir = false;
 let wordSegments = [];
 let highlightAnimationFrameId = null;
 
+// Playlist Listening Mode State
+let isListeningPlaylistMode = false;
+let listeningPlaylistQueue = [];
+let currentPlaylistIndex = -1;
+
 // User Surah Full Playback State
 let isUserSurahPlaying = false;
 let userSurahPlayList = []; // Array of { numberInSurah, index, blobUrl }
@@ -316,6 +321,9 @@ async function fetchSurahsList() {
         
         // Populate custom search dropdown options list
         surahOptionsList.innerHTML = '';
+        const listeningSurahGrid = document.getElementById('listening-surah-grid');
+        if (listeningSurahGrid) listeningSurahGrid.innerHTML = '';
+        
         surahList.forEach(surah => {
             const opt = document.createElement('div');
             opt.className = 'search-select-option';
@@ -341,10 +349,34 @@ async function fetchSurahsList() {
                 opt.classList.add('active');
                 selectedSurahLabel.textContent = `${surah.number}. ${surah.name} (${surah.englishName})`;
                 
+                // When selecting a Surah manually, turn off playlist listening mode
+                isListeningPlaylistMode = false;
+                const btnListeningToggle = document.getElementById('btn-listening-mode-toggle');
+                if (btnListeningToggle) btnListeningToggle.classList.remove('active-playlist');
+                
                 loadSurah(surah.number);
             });
             
             surahOptionsList.appendChild(opt);
+            
+            // Build checklist item for listening mode playlist modal
+            if (listeningSurahGrid) {
+                const item = document.createElement('label');
+                item.className = 'playlist-checkbox-label';
+                item.innerHTML = `
+                    <input type="checkbox" value="${surah.number}" data-name="${surah.name}">
+                    <span>${surah.number}. ${surah.name}</span>
+                `;
+                
+                // Add event listener to dynamically style selected cells and update preview
+                const chk = item.querySelector('input');
+                chk.addEventListener('change', () => {
+                    item.classList.toggle('selected', chk.checked);
+                    updateListeningPlaylistQueuePreview();
+                });
+                
+                listeningSurahGrid.appendChild(item);
+            }
         });
         
         // Load default Surah
@@ -798,11 +830,44 @@ function onAudioEnded() {
             }
         }
     } else {
-        // Complete stop reached
-        pauseRecitation();
-        currentAyahRepeatCount = 0;
-        autoplayMode = false;
-        btnAutoplay.classList.remove('active');
+        // We reached the end of the current Surah. Check if we are in Playlist Listening Mode!
+        if (isListeningPlaylistMode && currentPlaylistIndex < listeningPlaylistQueue.length - 1) {
+            currentPlaylistIndex++;
+            const nextSurahNum = listeningPlaylistQueue[currentPlaylistIndex];
+            
+            // Show loading state
+            quranTextContainer.innerHTML = `<div class="empty-state-text">جاري الانتقال التلقائي للسورة التالية بقائمتك...</div>`;
+            
+            // Load the next Surah and then play its first ayah automatically
+            loadSurah(nextSurahNum).then(() => {
+                // Update active state in select dropdown UI
+                surahOptionsList.querySelectorAll('.search-select-option').forEach(o => {
+                    o.classList.toggle('active', parseInt(o.dataset.value, 10) === nextSurahNum);
+                });
+                
+                const activeOption = surahOptionsList.querySelector(`.search-select-option[data-value="${nextSurahNum}"]`);
+                if (activeOption) {
+                    selectedSurahLabel.textContent = activeOption.textContent.trim();
+                }
+                
+                // Play immediately
+                playRecitation();
+            }).catch(err => {
+                console.error('Failed to load next playlist Surah:', err);
+                pauseRecitation();
+            });
+        } else {
+            // Complete stop reached
+            pauseRecitation();
+            currentAyahRepeatCount = 0;
+            autoplayMode = false;
+            btnAutoplay.classList.remove('active');
+            
+            // Deactivate listening mode button visual state at the end of playlist
+            isListeningPlaylistMode = false;
+            const btnListeningToggle = document.getElementById('btn-listening-mode-toggle');
+            if (btnListeningToggle) btnListeningToggle.classList.remove('active-playlist');
+        }
     }
 }
 
@@ -2017,6 +2082,157 @@ document.addEventListener('DOMContentLoaded', () => {
                 hidePromoModal();
             } else {
                 alert("للتثبيت على الآيفون: اضغط زر مشاركة 📤 بسفاري ثم اختر 'إضافة للشاشة الرئيسية' ➕\n\n(على الأندرويد والكمبيوتر يظهر زر التثبيت في الترويسة)");
+            }
+        });
+    }
+
+    // --- 9. Playlist Listening Mode Controls & Logic ---
+    const btnListeningToggle = document.getElementById('btn-listening-mode-toggle');
+    const listeningModal = document.getElementById('listening-modal');
+    const btnCloseListening = document.getElementById('btn-close-listening');
+    const btnListeningSelectAll = document.getElementById('btn-listening-select-all');
+    const btnListeningClearAll = document.getElementById('btn-listening-clear-all');
+    const btnStartListeningPlay = document.getElementById('btn-start-listening-play');
+    const listeningSelectedCount = document.getElementById('listening-selected-count');
+    const listeningQueuePreview = document.getElementById('listening-queue-preview');
+    const listeningSurahGrid = document.getElementById('listening-surah-grid');
+
+    function showListeningModal() {
+        if (listeningModal) {
+            listeningModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            updateListeningPlaylistQueuePreview();
+        }
+    }
+
+    function hideListeningModal() {
+        if (listeningModal) {
+            listeningModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Update the counter and textual list of checked surahs
+    window.updateListeningPlaylistQueuePreview = function() {
+        if (!listeningSurahGrid) return;
+        const checkedBoxes = listeningSurahGrid.querySelectorAll('input[type="checkbox"]:checked');
+        const count = checkedBoxes.length;
+        
+        // Convert count to localized Arabic digits
+        const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+        const countStr = count.toString().split('').map(d => arabicDigits[parseInt(d, 10)] || d).join('');
+        if (listeningSelectedCount) listeningSelectedCount.textContent = countStr;
+        
+        if (count === 0) {
+            if (listeningQueuePreview) {
+                listeningQueuePreview.innerHTML = `<span class="empty-queue-text">لم يتم اختيار سور بعد. اختر من القائمة بالأعلى للبدء.</span>`;
+            }
+            if (btnStartListeningPlay) btnStartListeningPlay.disabled = true;
+            return;
+        }
+
+        if (btnStartListeningPlay) btnStartListeningPlay.disabled = false;
+        
+        const names = [];
+        checkedBoxes.forEach(chk => {
+            names.push(chk.getAttribute('data-name'));
+        });
+        
+        if (listeningQueuePreview) {
+            listeningQueuePreview.innerHTML = `<strong>الترتيب:</strong> ` + names.join(' ← ');
+        }
+    }
+
+    // Toggle Listening Modal View
+    if (btnListeningToggle) btnListeningToggle.addEventListener('click', showListeningModal);
+    if (btnCloseListening) btnCloseListening.addEventListener('click', hideListeningModal);
+    
+    if (listeningModal) {
+        listeningModal.addEventListener('click', (e) => {
+            if (e.target === listeningModal) hideListeningModal();
+        });
+    }
+
+    // Playlist Select All Actions
+    if (btnListeningSelectAll) {
+        btnListeningSelectAll.addEventListener('click', () => {
+            if (!listeningSurahGrid) return;
+            const checkboxes = listeningSurahGrid.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(chk => {
+                chk.checked = true;
+                chk.parentElement.classList.add('selected');
+            });
+            updateListeningPlaylistQueuePreview();
+        });
+    }
+
+    // Playlist Clear All Actions
+    if (btnListeningClearAll) {
+        btnListeningClearAll.addEventListener('click', () => {
+            if (!listeningSurahGrid) return;
+            const checkboxes = listeningSurahGrid.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(chk => {
+                chk.checked = false;
+                chk.parentElement.classList.remove('selected');
+            });
+            updateListeningPlaylistQueuePreview();
+        });
+    }
+
+    // Start Playback Queue
+    if (btnStartListeningPlay) {
+        btnStartListeningPlay.addEventListener('click', async () => {
+            if (!listeningSurahGrid) return;
+            const checkedBoxes = listeningSurahGrid.querySelectorAll('input[type="checkbox"]:checked');
+            if (checkedBoxes.length === 0) {
+                alert("يرجى تحديد سورة واحدة على الأقل للاستماع.");
+                return;
+            }
+            
+            // Build queue
+            listeningPlaylistQueue = [];
+            checkedBoxes.forEach(chk => {
+                listeningPlaylistQueue.push(parseInt(chk.value, 10));
+            });
+            
+            // Set active states
+            isListeningPlaylistMode = true;
+            currentPlaylistIndex = 0;
+            
+            // Highlight Listening Mode Header button to show active
+            if (btnListeningToggle) btnListeningToggle.classList.add('active-playlist');
+            
+            // Disable looping (listening playlist mode requires straight playing to transition)
+            loopMode = false;
+            if (btnLoop) btnLoop.classList.remove('active');
+            
+            // Enable autoplay to advance between verses within the Surah
+            autoplayMode = true;
+            if (btnAutoplay) btnAutoplay.classList.add('active');
+            
+            hideListeningModal();
+            
+            // Load and Play first Surah in queue
+            const firstSurah = listeningPlaylistQueue[0];
+            
+            quranTextContainer.innerHTML = `<div class="empty-state-text">جاري بدء تشغيل السورة الأولى بقائمة الاستماع...</div>`;
+            
+            try {
+                await loadSurah(firstSurah);
+                // Update dropdown active item
+                surahOptionsList.querySelectorAll('.search-select-option').forEach(o => {
+                    o.classList.toggle('active', parseInt(o.dataset.value, 10) === firstSurah);
+                });
+                
+                const activeOption = surahOptionsList.querySelector(`.search-select-option[data-value="${firstSurah}"]`);
+                if (activeOption) {
+                    selectedSurahLabel.textContent = activeOption.textContent.trim();
+                }
+                
+                // Play immediately
+                playRecitation();
+            } catch (err) {
+                console.error("Failed to start listening playlist playback:", err);
             }
         });
     }
