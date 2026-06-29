@@ -2096,7 +2096,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const listeningSelectedCount = document.getElementById('listening-selected-count');
     const listeningQueuePreview = document.getElementById('listening-queue-preview');
     const listeningSurahGrid = document.getElementById('listening-surah-grid');
-    const listeningSearchInput = document.getElementById('listening-search-input');
+    // Function to bind input listener to search field
+    function setupListeningSearchFilter() {
+        if (listeningSearchInput) {
+            // Remove existing listener to prevent duplicate binds if any
+            listeningSearchInput.removeEventListener('input', onListeningSearchInput);
+            listeningSearchInput.addEventListener('input', onListeningSearchInput);
+        }
+    }
+
+    function onListeningSearchInput() {
+        if (!listeningSurahGrid || !listeningSearchInput) return;
+        const query = normalizeArabic(listeningSearchInput.value.trim());
+        const labels = listeningSurahGrid.querySelectorAll('.playlist-checkbox-label');
+        
+        labels.forEach(label => {
+            const text = normalizeArabic(label.textContent);
+            if (text.includes(query)) {
+                label.classList.remove('hidden');
+            } else {
+                label.classList.add('hidden');
+            }
+        });
+    }
+
+    // Fallback: If search input is missing due to browser HTML caching, create it programmatically!
+    if (!listeningSearchInput && listeningSurahGrid) {
+        const container = listeningSurahGrid.parentElement;
+        if (container) {
+            const header = container.querySelector('.playlist-selection-header');
+            if (header) {
+                const searchBox = document.createElement('div');
+                searchBox.className = 'playlist-search-box';
+                searchBox.innerHTML = `<input type="text" id="listening-search-input" placeholder="🔍 ابحث عن سورة بالاسم أو الرقم (مثال: البقرة، الكهف)...">`;
+                header.insertAdjacentElement('afterend', searchBox);
+                listeningSearchInput = document.getElementById('listening-search-input');
+            }
+        }
+    }
+
+    // Bind event listener to search input
+    setupListeningSearchFilter();
 
     function showListeningModal() {
         if (listeningModal) {
@@ -2121,24 +2161,6 @@ document.addEventListener('DOMContentLoaded', () => {
             listeningModal.classList.add('hidden');
             document.body.style.overflow = '';
         }
-    }
-
-    // Dynamic Search Filter for Surah Checklist
-    if (listeningSearchInput) {
-        listeningSearchInput.addEventListener('input', () => {
-            if (!listeningSurahGrid) return;
-            const query = normalizeArabic(listeningSearchInput.value.trim());
-            const labels = listeningSurahGrid.querySelectorAll('.playlist-checkbox-label');
-            
-            labels.forEach(label => {
-                const text = normalizeArabic(label.textContent);
-                if (text.includes(query)) {
-                    label.classList.remove('hidden');
-                } else {
-                    label.classList.add('hidden');
-                }
-            });
-        });
     }
 
     // Update the counter and textual list of checked surahs

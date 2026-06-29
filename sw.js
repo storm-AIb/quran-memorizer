@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quran-memorizer-v11';
+const CACHE_NAME = 'quran-memorizer-v12';
 const ASSETS = [
   './',
   './index.html',
