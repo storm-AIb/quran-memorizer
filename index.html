@@ -90,6 +90,12 @@
                         <span>دعم المشروع</span>
                     </button>
 
+                    <!-- Promo Tour Button -->
+                    <button class="btn-promo-tour" id="btn-promo-trigger" title="عرض مميزات ودليل الموقع التفاعلي">
+                        <span class="promo-icon">✨</span>
+                        <span>دليل المميزات</span>
+                    </button>
+
                     <!-- Install App PWA Button -->
                     <button class="btn-install-pwa hidden" id="btn-install-app" title="تثبيت اختصار التطبيق على الهاتف">
                         <span class="install-icon">📲</span>
@@ -413,6 +419,95 @@
             </div>
             <div class="modal-footer">
                 <p>كتب الله أجركم وضاعف لكم المثوبة وجعلها في ميزان حسناتكم 🤲</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. Interactive Feature Guide Tour Modal -->
+    <div class="modal-overlay hidden" id="promo-modal">
+        <div class="modal-card promo-card">
+            <div class="modal-header">
+                <h3>جولة مميزات محفظ القرآن الذكي ✨</h3>
+                <button class="btn-close-modal" id="btn-close-promo" title="إغلاق الدليل">&times;</button>
+            </div>
+            <div class="modal-body promo-body">
+                <!-- Promo Carousel Slides -->
+                <div class="promo-slides-container">
+                    
+                    <!-- Slide 1: Audio Recitation & Echo -->
+                    <div class="promo-slide active" data-slide-index="0">
+                        <div class="promo-media">
+                            <div class="promo-illustration">🕌🔊</div>
+                        </div>
+                        <div class="promo-content">
+                            <h4>١. هندسة الصوت والصدى المباشر</h4>
+                            <p>عش تجربة التلاوة داخل الحرم أو المسجد النبوي! يدعم التطبيق هندسة الصوت الحية لتسجيل صوتك بصدى صوت المسجد أو استوديو احترافي مباشرة من متصفحك وسماعه فوراً.</p>
+                            <span class="badge">ميزة حصرية</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Karaoke Highlight -->
+                    <div class="promo-slide" data-slide-index="1">
+                        <div class="promo-media">
+                            <div class="promo-illustration">📖⚡</div>
+                        </div>
+                        <div class="promo-content">
+                            <h4>٢. التتبع التفاعلي الكاريوكي</h4>
+                            <p>أثناء استماعك لتلاوة الشيخ، يتم تلوين وإضاءة الكلمة المقروءة تلقائياً بالتزامن مع الصوت لتسهيل التركيز والتعلم البصري للنطق الصحيح للآيات.</p>
+                            <span class="badge">مثالي للتحفيظ</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: Smart Checking -->
+                    <div class="promo-slide" data-slide-index="2">
+                        <div class="promo-media">
+                            <div class="promo-illustration">👁️🛡️</div>
+                        </div>
+                        <div class="promo-content">
+                            <h4>٣. وضع اختبار الحفظ التلقائي</h4>
+                            <p>تفعيل زر "إخفاء النص" يقوم بطمس كلمات الآية، لتبدأ بالتسميع بصوتك واختبار حفظك، مع إمكانية إظهار الكلمات مؤقتاً عند النقر أو اللمس لمساعدتك عند النسيان.</p>
+                            <span class="badge">ذكاء اصطناعي تفاعلي</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4: Kids Mode -->
+                    <div class="promo-slide" data-slide-index="3">
+                        <div class="promo-media">
+                            <div class="promo-illustration">👶🎨</div>
+                        </div>
+                        <div class="promo-content">
+                            <h4>٤. وضع الأطفال المبهج</h4>
+                            <p>بنقرة واحدة، يتحول التطبيق إلى واجهة ملونة ومبهجة ورسوم متحركة تفاعلية تشجع الأطفال وتجعل حفظ وتسميع القرآن تجربة تفاعلية ممتعة ومحببة لهم.</p>
+                            <button class="btn btn-secondary btn-promo-action" id="btn-promo-toggle-kids">جرب وضع الأطفال الآن</button>
+                        </div>
+                    </div>
+
+                    <!-- Slide 5: PWA Install -->
+                    <div class="promo-slide" data-slide-index="4">
+                        <div class="promo-media">
+                            <div class="promo-illustration">📲💾</div>
+                        </div>
+                        <div class="promo-content">
+                            <h4>٥. تثبيت التطبيق والعمل دون إنترنت</h4>
+                            <p>يمكنك تنزيل وتثبيت التطبيق كاختصار مباشر على هاتفك الآيفون أو الأندرويد، والاستمتاع بتلاوة السور والتفسير أوفلاين بالكامل دون الحاجة لشبكة الإنترنت!</p>
+                            <button class="btn btn-primary btn-promo-action" id="btn-promo-install-app">تثبيت التطبيق على جهازي</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Carousel Navigation -->
+                <div class="promo-navigation">
+                    <button class="btn-promo-nav prev-promo-slide" id="btn-promo-prev" disabled>&larr; السابق</button>
+                    <div class="promo-dots" id="promo-dots-indicator">
+                        <span class="promo-dot active" data-slide="0"></span>
+                        <span class="promo-dot" data-slide="1"></span>
+                        <span class="promo-dot" data-slide="2"></span>
+                        <span class="promo-dot" data-slide="3"></span>
+                        <span class="promo-dot" data-slide="4"></span>
+                    </div>
+                    <button class="btn-promo-nav next-promo-slide" id="btn-promo-next">التالي &rarr;</button>
+                </div>
             </div>
         </div>
     </div>

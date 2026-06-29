@@ -1903,6 +1903,120 @@ document.addEventListener('DOMContentLoaded', () => {
             }).catch(err => {
                 console.error('Failed to copy text: ', err);
             });
+    }
+
+    // --- Interactive Promo Tour Carousel Logic ---
+    const btnPromoTrigger = document.getElementById('btn-promo-trigger');
+    const promoModal = document.getElementById('promo-modal');
+    const btnClosePromo = document.getElementById('btn-close-promo');
+    const btnPromoPrev = document.getElementById('btn-promo-prev');
+    const btnPromoNext = document.getElementById('btn-promo-next');
+    const promoDotsIndicator = document.getElementById('promo-dots-indicator');
+    const btnPromoToggleKids = document.getElementById('btn-promo-toggle-kids');
+    const btnPromoInstallApp = document.getElementById('btn-promo-install-app');
+    
+    let currentPromoSlide = 0;
+    const totalPromoSlides = 5;
+
+    function showPromoModal() {
+        if (promoModal) {
+            promoModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            goToPromoSlide(0); // Reset to first slide
+        }
+    }
+
+    function hidePromoModal() {
+        if (promoModal) {
+            promoModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function goToPromoSlide(index) {
+        if (index < 0 || index >= totalPromoSlides) return;
+        currentPromoSlide = index;
+
+        // Update slides visibility
+        const slides = document.querySelectorAll('.promo-slide');
+        slides.forEach((slide, idx) => {
+            slide.classList.toggle('active', idx === index);
+        });
+
+        // Update dots indicators
+        const dots = document.querySelectorAll('.promo-dot');
+        dots.forEach((dot, idx) => {
+            dot.classList.toggle('active', idx === index);
+        });
+
+        // Enable/Disable buttons based on index
+        if (btnPromoPrev) btnPromoPrev.disabled = (index === 0);
+        if (btnPromoNext) {
+            if (index === totalPromoSlides - 1) {
+                btnPromoNext.textContent = "إنهاء الجولة ✓";
+            } else {
+                btnPromoNext.textContent = "التالي →";
+            }
+        }
+    }
+
+    // Event Bindings for Promo Trigger and Navigation
+    if (btnPromoTrigger) btnPromoTrigger.addEventListener('click', showPromoModal);
+    if (btnClosePromo) btnClosePromo.addEventListener('click', hidePromoModal);
+    
+    if (promoModal) {
+        promoModal.addEventListener('click', (e) => {
+            if (e.target === promoModal) hidePromoModal();
+        });
+    }
+
+    if (btnPromoPrev) {
+        btnPromoPrev.addEventListener('click', () => {
+            goToPromoSlide(currentPromoSlide - 1);
+        });
+    }
+
+    if (btnPromoNext) {
+        btnPromoNext.addEventListener('click', () => {
+            if (currentPromoSlide === totalPromoSlides - 1) {
+                hidePromoModal();
+            } else {
+                goToPromoSlide(currentPromoSlide + 1);
+            }
+        });
+    }
+
+    // Dots navigation
+    if (promoDotsIndicator) {
+        promoDotsIndicator.addEventListener('click', (e) => {
+            if (e.target.classList.contains('promo-dot')) {
+                const idx = parseInt(e.target.getAttribute('data-slide'), 10);
+                goToPromoSlide(idx);
+            }
+        });
+    }
+
+    // Interactive button inside Slide 4: Toggle Kids Mode directly!
+    if (btnPromoToggleKids) {
+        btnPromoToggleKids.addEventListener('click', () => {
+            const kidsModeBtn = document.getElementById('btn-kids-mode-toggle');
+            if (kidsModeBtn) {
+                kidsModeBtn.click(); // Trigger kids mode click action
+                hidePromoModal(); // Close the tour to let them play
+            }
+        });
+    }
+
+    // Interactive button inside Slide 5: Trigger App Install prompt directly!
+    if (btnPromoInstallApp) {
+        btnPromoInstallApp.addEventListener('click', () => {
+            const installAppBtn = document.getElementById('btn-install-app');
+            if (installAppBtn && !installAppBtn.classList.contains('hidden')) {
+                installAppBtn.click(); // Trigger installation prompt
+                hidePromoModal();
+            } else {
+                alert("للتثبيت على الآيفون: اضغط زر مشاركة 📤 بسفاري ثم اختر 'إضافة للشاشة الرئيسية' ➕\n\n(على الأندرويد والكمبيوتر يظهر زر التثبيت في الترويسة)");
+            }
         });
     }
 }); // Properly close DOMContentLoaded event here
