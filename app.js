@@ -2198,6 +2198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const listeningSelectedCount = document.getElementById('listening-selected-count');
     const listeningQueuePreview = document.getElementById('listening-queue-preview');
     const listeningSurahGrid = document.getElementById('listening-surah-grid');
+    let listeningSearchInput = document.getElementById('listening-search-input');
     // Function to bind input listener to search field
     function setupListeningSearchFilter() {
         if (listeningSearchInput) {
