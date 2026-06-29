@@ -34,17 +34,21 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Only handle GET requests and local/http assets to prevent caching external APIs with other methods
-  if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) {
+  const isLocalRequest = e.request.url.startsWith(self.location.origin);
+  const isApiRequest = e.request.url.startsWith('https://api.alquran.cloud/');
+  
+  // Handle GET requests for local assets OR Quran API calls
+  if (e.request.method !== 'GET' || (!isLocalRequest && !isApiRequest)) {
     return;
   }
+  
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
       return fetch(e.request).then((response) => {
-        // Cache newly fetched local assets
+        // Cache newly fetched local assets or API requests
         if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -54,8 +58,11 @@ self.addEventListener('fetch', (e) => {
         return response;
       });
     }).catch(() => {
-      // Offline fallback
-      return caches.match('./index.html');
+      // Offline fallback for local document page
+      if (isLocalRequest) {
+        return caches.match('./index.html');
+      }
+      return Promise.reject('Offline API request failed');
     })
   );
 });
