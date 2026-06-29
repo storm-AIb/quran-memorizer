@@ -411,11 +411,41 @@ function pad3(num) {
     return String(num).padStart(3, '0');
 }
 
-function loadAyah(index, preventPageScroll = false) {
+function updateMediaSession() {
+    if ('mediaSession' in navigator && currentSurahName && surahAyahs.length > 0 && currentAyahIndex >= 0) {
+        const ayah = surahAyahs[currentAyahIndex];
+        const reciterName = reciterSelect.options[reciterSelect.selectedIndex].text;
+        
+        // Resolve absolute URLs for PWA artwork icons to display on lockscreen/control center
+        const host = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+        const artworkUrl192 = new URL('icon-192.png', host).href;
+        const artworkUrl512 = new URL('icon-512.png', host).href;
+        
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: `سورة ${currentSurahName} - الآية ${ayah.numberInSurah}`,
+            artist: `بصوت القارئ ${reciterName}`,
+            album: 'محفظ القرآن الكريم',
+            artwork: [
+                { src: artworkUrl192, sizes: '192x192', type: 'image/png' },
+                { src: artworkUrl512, sizes: '512x512', type: 'image/png' }
+            ]
+        });
+        
+        // Bind hardware play/pause buttons
+        navigator.mediaSession.setActionHandler('play', playRecitation);
+        navigator.mediaSession.setActionHandler('pause', pauseRecitation);
+        navigator.mediaSession.setActionHandler('previoustrack', loadPrevAyah);
+        navigator.mediaSession.setActionHandler('nexttrack', loadNextAyah);
+    }
+}
+
+function loadAyah(index, preventPageScroll = false, isContinuousTransition = false) {
     if (index < 0 || index >= surahAyahs.length) return;
     
-    // Stop any playing recitations
-    stopRecitation();
+    // Only stop recitation if not in a continuous transition playback
+    if (!isContinuousTransition) {
+        stopRecitation();
+    }
     
     currentAyahIndex = index;
     currentAyahRepeatCount = 0; // Reset repeat counter
@@ -523,6 +553,7 @@ function playRecitation() {
             btnListen.querySelector('.icon-play').classList.add('hidden');
             btnListen.querySelector('.icon-pause').classList.remove('hidden');
             startHighlightLoop();
+            updateMediaSession();
         })
         .catch(err => {
             console.error('Recitation play failed:', err);
@@ -557,6 +588,12 @@ function toggleAutoplayMode() {
     autoplayMode = !autoplayMode;
     btnAutoplay.classList.toggle('active', autoplayMode);
     currentAyahRepeatCount = 0; // Reset repeat counter
+}
+
+// Global mediaSession update on pause
+if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', playRecitation);
+    navigator.mediaSession.setActionHandler('pause', pauseRecitation);
 }
 
 function toggleCheckMode() {
@@ -658,40 +695,61 @@ function onAudioTimeUpdate() {
 }
 
 function onAudioEnded() {
-    pauseRecitation();
+    // Determine if we should continue playing next or repeat
+    let willContinue = false;
     
     if (loopMode && autoplayMode) {
-        // BOTH active: repeat the active Ayah 3 times, then transition to next Ayah
-        currentAyahRepeatCount++;
-        if (currentAyahRepeatCount < 3) {
-            setTimeout(playRecitation, 100); // 100ms very small pause before repeating
-        } else {
-            currentAyahRepeatCount = 0; // Reset for next Ayah
-            setTimeout(() => {
-                if (currentAyahIndex < surahAyahs.length - 1) {
-                    loadAyah(currentAyahIndex + 1, true);
-                    playRecitation();
-                } else {
-                    // Reached the end of the Surah
-                    autoplayMode = false;
-                    btnAutoplay.classList.remove('active');
-                }
-            }, 150); // Fast transition to next Ayah
+        if (currentAyahRepeatCount + 1 < 3 || currentAyahIndex < surahAyahs.length - 1) {
+            willContinue = true;
         }
     } else if (loopMode) {
-        // ONLY Loop active: repeat indefinitely
-        setTimeout(playRecitation, 100); // Fast repetition
+        willContinue = true;
     } else if (autoplayMode) {
-        // ONLY Autoplay active: play once and advance
-        setTimeout(() => {
-            if (currentAyahIndex < surahAyahs.length - 1) {
-                loadAyah(currentAyahIndex + 1, true);
-                playRecitation();
+        if (currentAyahIndex < surahAyahs.length - 1) {
+            willContinue = true;
+        }
+    }
+    
+    if (willContinue) {
+        // We will continue: DO NOT call pauseRecitation() to prevent visual/audio stuttering
+        if (loopMode && autoplayMode) {
+            currentAyahRepeatCount++;
+            if (currentAyahRepeatCount < 3) {
+                // Repeat same Ayah
+                reciterAudio.currentTime = 0;
+                reciterAudio.play()
+                    .then(updateMediaSession)
+                    .catch(err => console.error('Continuous play repeat failed:', err));
             } else {
-                autoplayMode = false;
-                btnAutoplay.classList.remove('active');
+                currentAyahRepeatCount = 0;
+                if (currentAyahIndex < surahAyahs.length - 1) {
+                    loadAyah(currentAyahIndex + 1, true, true); // true, true = prevent scroll, isContinuous
+                    reciterAudio.play()
+                        .then(updateMediaSession)
+                        .catch(err => console.error('Continuous play next failed:', err));
+                }
             }
-        }, 150); // Fast transition
+        } else if (loopMode) {
+            // Repeat same Ayah infinitely
+            reciterAudio.currentTime = 0;
+            reciterAudio.play()
+                .then(updateMediaSession)
+                .catch(err => console.error('Continuous loop play failed:', err));
+        } else if (autoplayMode) {
+            // Play next Ayah
+            if (currentAyahIndex < surahAyahs.length - 1) {
+                loadAyah(currentAyahIndex + 1, true, true); // true, true = prevent scroll, isContinuous
+                reciterAudio.play()
+                    .then(updateMediaSession)
+                    .catch(err => console.error('Continuous autoplay next failed:', err));
+            }
+        }
+    } else {
+        // Complete stop reached
+        pauseRecitation();
+        currentAyahRepeatCount = 0;
+        autoplayMode = false;
+        btnAutoplay.classList.remove('active');
     }
 }
 
